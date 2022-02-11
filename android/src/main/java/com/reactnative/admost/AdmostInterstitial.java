@@ -63,6 +63,12 @@ public class AdmostInterstitial extends ReactContextBaseJavaModule {
             public void onComplete(String s) {
                 // If you are using interstitial, this callback will not be triggered.
             }
+            @Override
+            public void onStatusChanged(int statusCode) {
+                // This callback will be triggered only when frequency cap ended.
+                // status code
+                // 1 - AdMost.AD_STATUS_CHANGE_FREQ_CAP_ENDED
+            }
         });
         promise.resolve(true);
     }
