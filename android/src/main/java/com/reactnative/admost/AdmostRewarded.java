@@ -5,6 +5,8 @@ import com.facebook.react.bridge.ReactContextBaseJavaModule;
 import com.facebook.react.bridge.ReactMethod;
 import admost.sdk.AdMostInterstitial;
 import admost.sdk.listener.AdMostAdListener;
+import admost.sdk.listener.AdMostFullScreenCallBack;
+
 import com.facebook.react.bridge.Promise;
 
 public class AdmostRewarded extends ReactContextBaseJavaModule {
@@ -38,7 +40,7 @@ public class AdmostRewarded extends ReactContextBaseJavaModule {
             return;
         }
         Log.i(TAG, "Starting rewarded with " + this.zoneID);
-        this.rewarded = new AdMostInterstitial(getCurrentActivity(), this.zoneID, new AdMostAdListener() {
+        this.rewarded = new AdMostInterstitial(getCurrentActivity(), this.zoneID, new AdMostFullScreenCallBack() {
             @Override
             public void onDismiss(String message) {
                 AdmostModule.sendEvent("didDismissRewardedVideo", "");
@@ -69,25 +71,42 @@ public class AdmostRewarded extends ReactContextBaseJavaModule {
                 // status code
                 // 1 - AdMost.AD_STATUS_CHANGE_FREQ_CAP_ENDED
             }
+            @Override
+            public void onAdRevenuePaid(AdMostFullScreenCallBack.AdMostImpressionData impressionData) {
+                // It indicates that the impression is counted
+            }
         });
         promise.resolve(true);
     }
 
     @ReactMethod
     public void loadAd(Promise promise) {
-        this.rewarded.refreshAd(this.autoShow);
-        promise.resolve(true);
+        if (this.rewarded != null){
+            this.rewarded.refreshAd(this.autoShow);
+            promise.resolve(true);
+        }else{
+            promise.resolve(false);
+        }
+    }
+
+    @ReactMethod
+    public void isLoaded(Promise promise) {
+        promise.resolve(this.rewarded.isLoaded());
     }
 
     @ReactMethod
     public void showAd(Promise promise) {
-        this.rewarded.show();
+        if (this.rewarded != null) {
+            this.rewarded.show();
+        }
         promise.resolve(null);
     }
 
     @ReactMethod
     public void destroyAd(Promise promise) {
-        this.rewarded.destroy();
+        if (this.rewarded != null) {
+            this.rewarded.destroy();
+        }
         promise.resolve(null);
     }
 
